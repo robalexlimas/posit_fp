@@ -1,0 +1,4 @@
+log: logs # name of the experiment needed for the logs
+folder: results # default folder results
+bits: 32 # num bits empoyed for the format
+workers: 3 # num of workers
