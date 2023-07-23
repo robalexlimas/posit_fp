@@ -242,8 +242,7 @@ class Draw(object):
 
 
     def __create_fig(self):
-        fig, ax = plt.subplots(figsize=(9, 6))
-        fig.tight_layout(pad=10)
+        fig, ax = plt.subplots()
         return fig, ax
 
 
