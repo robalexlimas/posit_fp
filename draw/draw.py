@@ -6,7 +6,6 @@ from ast import literal_eval
 
 
 import os
-import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
@@ -14,7 +13,7 @@ import pandas as pd
 
 sns.set(
     font='Times New Roman',
-    font_scale=3
+    font_scale=2
 )
 sns.set_theme(style='whitegrid', palette='pastel')
 
@@ -31,11 +30,11 @@ class Draw(object):
             filename.split('.csv')[0],
             filename.split('.csv')[0] + '_clean.csv'
         )
-        logger.info(f'Paths\n{self.__path}\n{self.__results}')
+        logger.info(f'Analizing...\n{self.__path}')
         self.__df = pd.read_csv(self.__path)
 
     
-    def save_abs(self):
+    def save_abs(self, ylim=None):
         logger.info(f'Saving absolute error for {self.__filename}')
         fig, ax = self.__create_fig()
         boxplot = sns.boxplot(
@@ -44,17 +43,21 @@ class Draw(object):
             y='abs',
             ax=ax
         )
+        if ylim:
+            boxplot.set(ylim=ylim)
         ax.set(
             xlabel='Bit',
             ylabel='Absolute Error'
         )
         ax.set_yscale('log')
         ax.grid(False)
+        plt.axhline(y=1.0, color='r')
         boxplot.invert_xaxis()
         self.__save(fig, f'abs')
+        plt.close('all')
 
     
-    def save_relative(self):
+    def save_relative(self, ylim=None):
         logger.info(f'Saving relative error for {self.__filename}')
         fig, ax = self.__create_fig()
         boxplot = sns.boxplot(
@@ -63,14 +66,18 @@ class Draw(object):
             y='relative',
             ax=ax
         )
+        if ylim:
+            boxplot.set(ylim=ylim)
         ax.set(
             xlabel='Bit',
             ylabel='Relative Error'
         )
         ax.set_yscale('log')
         ax.grid(False)
+        plt.axhline(y=1.0, color='r')
         boxplot.invert_xaxis()
         self.__save(fig, f'relative')
+        plt.close('all')
         del boxplot
 
     
@@ -92,12 +99,12 @@ class Draw(object):
         )
         ax.set(
             xlabel='Bit',
-            ylabel='Bit field'
+            ylabel='Changes'
         )
-        ax.set_yscale('log')
         ax.grid(False)
         barplot.invert_xaxis()
         self.__save(fig, f'accumulative')
+        plt.close('all')
         del bit_changes
         del barplot
     
@@ -124,10 +131,11 @@ class Draw(object):
         )
         ax.set(
             xlabel='Bit',
-            ylabel='Bit field'
+            ylabel='Changes'
         )
         ax.grid(False)
         self.__save(fig, f'bit_field')
+        plt.close('all')
         del bit_changes
         del barplot
 
@@ -157,12 +165,13 @@ class Draw(object):
 
         filename = f'heat_map' if not stuckat else f'heat_map_{stuckat}'
         self.__save(fig, filename)
+        plt.close('all')
         del histogram
         del hist
         del fault_stimuli
 
 
-    def save_block_location(self, stuckat=None):
+    def save_block_location(self, stuckat=None, xlim=None):
         logger.info(f'Saving block location for {self.__filename}')
         fault_stimuli = self.__block_data(stuckat)
         fig, ax = self.__create_fig()
@@ -173,13 +182,38 @@ class Draw(object):
             y='block_name',
             ax=ax
         )
-        ax.set_xscale('log', base=2)
+        if xlim:
+            scatter.set(xlim=xlim)
+        ax.set_xscale('log')
+        plt.axvline(x=1.0, color='r')
         scatter.set_xlabel('Absolute error')
-        scatter.set_ylabel('Block location')
+        scatter.set_ylabel('Hardware structure')
         scatter.grid(False)
 
         filename = f'block_location' if not stuckat else f'block_location_{stuckat}'
         self.__save(fig, filename)
+        plt.close('all')
+
+        fig, ax = self.__create_fig()
+
+        scatter = sns.boxplot(
+            data=fault_stimuli,
+            x='abs',
+            y='block_name',
+            ax=ax
+        )
+        if xlim:
+            scatter.set(xlim=xlim)
+        ax.set_xscale('log')
+        plt.axvline(x=1.0, color='r')
+        scatter.set_xlabel('Absolute error')
+        scatter.set_ylabel('Hardware structure')
+        scatter.grid(False)
+
+        filename = f'block_location_boxplot' if not stuckat else f'block_location_boxplot_{stuckat}'
+        self.__save(fig, filename)
+        plt.close('all')
+
         del scatter
         del fault_stimuli
 
@@ -194,27 +228,29 @@ class Draw(object):
             hue='stuckat'
         )
 
-        ax.set_xscale('log', base=2)
         displot.set_xlabel('Absolute error')
         displot.set_ylabel('Density')
         displot.grid(False)
 
         filename = f'density_stuckat'
         self.__save(fig, filename)
+        plt.close('all')
 
         fig, ax = self.__create_fig()
         displot = sns.kdeplot(
             data=self.__df,
-            x='abs'
+            x='abs',
+            ax=ax
         )
 
-        ax.set_xscale('log', base=2)
         displot.set_xlabel('Absolute error')
         displot.set_ylabel('Density')
         displot.grid(False)
 
         filename = f'density'
         self.__save(fig, filename)
+        plt.close('all')
+
         del displot
 
 
@@ -248,9 +284,13 @@ class Draw(object):
 
     def __save(self, fig, filename):
         fig.savefig(
-            f'{self.__results}/{filename}.pdf', format='pdf'
+            f'{self.__results}/{filename}.pdf',
+            format='pdf',
+            bbox_inches='tight'
         )
         fig.savefig(
-            f'{self.__results}/{filename}.jpg', format='jpg'
+            f'{self.__results}/{filename}.jpg',
+            format='jpg',
+            bbox_inches='tight'
         )
     
