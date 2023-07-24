@@ -3,7 +3,7 @@ from utils.args import args
 from utils.utils import abs_error, convert_to_float, relative_error, max_bit_changed, bits_chaged
 
 import pandas as pd
-import os
+import os, re
 
 
 class CSV_Complete(object):
@@ -108,13 +108,25 @@ class CSV_Complete(object):
     
     
     def __build_block_name(self, block_name):
+        pattern = r'U\d'
         name = []
         block_name = block_name.split('.')
         for split in block_name:
-            if not 'U' in split:
+            if not re.findall(pattern, split):
                 name.append(split)
             else:
                 break
+        for i, part in enumerate(name):
+            if 'reg' in part:
+                name[i] = 'Reg'
+                return '.'.join(name[0: i+1])
+            if 'tile_' in part:
+                tile_num = part.split('_')[1]
+                name[i] = f'Title{tile_num}'
+                return '.'.join(name[0: i+1])
+            if 'Compressor' in part:
+                name[i] = 'Compressor'
+                return '.'.join(name[0: i+1])
         name = '.'.join(name)
         return name
 

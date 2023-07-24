@@ -5,10 +5,6 @@ from utils.args import args
 from multiprocessing import Pool
 
 import os
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-import pandas as pd
 
 
 def list_csv(path):
@@ -22,19 +18,28 @@ def list_csv(path):
     return files
 
 
+xlim_a = float(10 ** (-16))
+xlim_b = float(10 ** 43)
+xlim = (xlim_a, xlim_b)
+
+ylim_a = float(10 ** (-16))
+ylim_b = float(10 ** 43)
+ylim = (ylim_a, ylim_b)
+
+
 def call_pool(file):
     CSV_Complete(file)
     draw = Draw(file)
-    draw.save_abs()
+    draw.save_abs(ylim=ylim)
     draw.save_bit_field_accumulative()
     draw.save_heatp_map()
     draw.save_heatp_map('0')
     draw.save_heatp_map('1')
-    draw.save_relative()
+    draw.save_relative(ylim=ylim)
     draw.save_bit_field()
-    draw.save_block_location()
-    draw.save_block_location('1')
-    draw.save_block_location('0')
+    draw.save_block_location(xlim=xlim)
+    draw.save_block_location(stuckat='1', xlim=xlim)
+    draw.save_block_location(stuckat='0', xlim=xlim)
     draw.save_error_density()
 
 
