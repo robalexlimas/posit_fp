@@ -217,6 +217,51 @@ class Draw(object):
         del scatter
         del fault_stimuli
 
+    def save_block_location_relative(self, stuckat=None, xlim=None):
+        logger.info(f'Saving block location relative for {self.__filename}')
+        fault_stimuli = self.__block_data(stuckat)
+        fig, ax = self.__create_fig()
+
+        scatter = sns.scatterplot(
+            data=fault_stimuli,
+            x='relative',
+            y='block_name',
+            ax=ax
+        )
+        if xlim:
+            scatter.set(xlim=xlim)
+        ax.set_xscale('log')
+        plt.axvline(x=1.0, color='r')
+        scatter.set_xlabel('Relative error')
+        scatter.set_ylabel('Hardware structure')
+        scatter.grid(False)
+
+        filename = f'block_location_relative' if not stuckat else f'block_location_relative_{stuckat}'
+        self.__save(fig, filename)
+        plt.close('all')
+
+        fig, ax = self.__create_fig()
+
+        scatter = sns.boxplot(
+            data=fault_stimuli,
+            x='relative',
+            y='block_name',
+            ax=ax
+        )
+        if xlim:
+            scatter.set(xlim=xlim)
+        ax.set_xscale('log')
+        plt.axvline(x=1.0, color='r')
+        scatter.set_xlabel('Relative error')
+        scatter.set_ylabel('Hardware structure')
+        scatter.grid(False)
+
+        filename = f'block_location_boxplot_relative' if not stuckat else f'block_location_boxplot_relative_{stuckat}'
+        self.__save(fig, filename)
+        plt.close('all')
+
+        del scatter
+        del fault_stimuli
 
     def save_error_density(self):
         logger.info(f'Saving density distribution error for {self.__filename}')
@@ -259,9 +304,6 @@ class Draw(object):
             fault_stimuli = self.__df[self.__df['stuckat'] == int(stuckat)]
         else:
             fault_stimuli = self.__df
-        fault_stimuli = fault_stimuli.groupby(
-            by=['block_name', 'abs'], as_index=False
-        ).count()
         return fault_stimuli
 
     
