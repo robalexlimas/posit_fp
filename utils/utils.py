@@ -67,3 +67,31 @@ def abs_error(real, fault):
 
 def num_bits_changed(bits_):
     return len(bits_)
+
+def error_distance(golden, corrupted):
+    return np.abs(corrupted - golden)
+
+
+def squared_error(golden, corrupted):
+    return (corrupted - golden) ** 2
+
+
+def relative_error_distance(golden, corrupted):
+    golden_div = 1.0 if golden == 0.0 else golden
+    return (np.abs(corrupted - golden) / golden_div)
+
+
+def mean_error_distance(error_distances):
+    return np.mean(error_distances)
+
+
+def mean_relative_error_distance(relative_errors):
+    return np.mean(relative_errors)
+
+
+def mean_squared_error(squared_errors):
+    return np.mean(squared_errors)
+
+
+def worst_case_error(error_distances):
+    return np.max(error_distances)

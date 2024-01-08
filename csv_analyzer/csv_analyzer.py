@@ -1,6 +1,6 @@
 from log.logger import logger
 from utils.args import args
-from utils.utils import abs_error, convert_to_float, relative_error, max_bit_changed, bits_chaged
+from utils.utils import abs_error, convert_to_float, relative_error, max_bit_changed, bits_chaged, error_distance, relative_error_distance
 
 import pandas as pd
 import os, re
@@ -74,6 +74,16 @@ class CSV_Complete(object):
                     )
                     df['abs'] = df.apply(
                         lambda d: abs_error(
+                            d['golden_float'], d['faulty_float']
+                        ), axis=1
+                    )
+                    df['error_distance'] = df.apply(
+                        lambda d: error_distance(
+                            d['golden_float'], d['faulty_float']
+                        ), axis=1
+                    )
+                    df['relative_error_distance'] = df.apply(
+                        lambda d: relative_error_distance(
                             d['golden_float'], d['faulty_float']
                         ), axis=1
                     )
